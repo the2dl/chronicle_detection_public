@@ -1,0 +1,27 @@
+rule windows_webserver_writing_aspx_file {
+  meta:
+    author = "Dan Lussier"
+    description = "Identifty a webserver writing a potential webshell"
+    version = "2.0"
+    severity = "High"
+    mitre_TA = "TA0003"
+    mitre_T1 = "T1505/003"
+    mitre_url = "https://attack.mitre.org/techniques/T1505/003/"
+    log_requirement = "EDR Telemetry"
+
+  events:
+    $e1.metadata.event_type = "FILE_CREATION"
+    $e1.metadata.description = /.*newscriptwrittenv.*/ nocase // If your EDR logs do not have this, comment it out.
+    $e1.principal.process.file.full_path = /.*w3wp.exe.*/ nocase
+        // Generic
+        $e1.target.file.full_path = /.*\\inetpub\\.*\.aspx/ nocase or
+        // Exchange HAFNIUM Specific
+        $e1.target.file.full_path = /.*\\httpproxy\\owa\\auth\\.*\.aspx/ nocase
+    $e1.principal.hostname = $hostname
+
+  match:
+   $hostname over 1m
+
+  condition:
+   $e1 
+}

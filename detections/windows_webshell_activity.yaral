@@ -1,0 +1,34 @@
+rule windows_webshell_activity {
+  meta:
+    author = "Dan Lussier"
+    description = "Identifty a webserver running cmd or powershell, often used by webshells"
+    version = "2.0"
+    severity = "High"
+    mitre_TA = "TA0003"
+    mitre_T1 = "T1505/003"
+    mitre_url = "https://attack.mitre.org/techniques/T1505/003/"
+    note = "You will need to create allow lists below, heavily dependent on your own environment"
+
+  events:
+      // Parent Launch
+    $e1.metadata.event_type = "PROCESS_LAUNCH"
+      $e1.principal.process.file.full_path = /.*w3wp.exe.*/ nocase or
+      $e1.principal.process.file.full_path = /.*httpd.exe.*/ nocase or
+      $e1.principal.process.file.full_path = /.*nginx.exe.*/ nocase or
+      $e1.principal.process.file.full_path = /.*tomcat.exe.*/ nocase
+        // Match conditions - All
+        $e1.target.process.file.full_path = /.*(cmd|powershell).*/ nocase
+            // Ignore Conditions - w3wp.exe (IIS)
+
+            // Ignore conditions - httpd.exe (HTTPD)
+
+            // Ignore conditions - tomcat.exe (Apache Tomcat)
+            
+    $e1.principal.hostname = $hostname
+
+  match:
+   $hostname over 1m
+
+  condition:
+   $e1 
+}
