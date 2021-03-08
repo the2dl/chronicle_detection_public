@@ -8,6 +8,7 @@ rule windows_webshell_activity {
     mitre_T1 = "T1505/003"
     mitre_url = "https://attack.mitre.org/techniques/T1505/003/"
     note = "You will need to create allow lists below, heavily dependent on your own environment"
+    log_requirement = "EDR Telemetry"
 
   events:
       // Parent Launch
