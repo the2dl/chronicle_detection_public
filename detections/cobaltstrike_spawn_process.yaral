@@ -1,0 +1,67 @@
+rule cobaltstrike_spawn_process {
+  meta:
+    author = "Dan Lussier"
+    description = "Identify when Cobaltstrike is spawning a shell without parameteres (Process Hollowing)"
+    Version = "3.0"
+    severity = "High"
+    mitre_TA = "TA0005"
+    mitre_T1 = "T1055"
+    mitre_url = "https://attack.mitre.org/techniques/T1055/"
+    reference_docs = "https://blog.cobaltstrike.com/2016/07/22/why-is-rundll32-exe-connecting-to-the-internet/"
+
+  events:
+
+/* If you add processes here, make sure you end them with $
+it should be the literal of the exe. Cobaltstrike and other frameworks hijack these processes, but do not have arguments after them by default. */
+
+$e1.metadata.event_type = "PROCESS_LAUNCH"
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\rundll32.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\searchprotocolhost.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\searchindexer.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\svchost.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\dllhost.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\notepad.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\regsvr32.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\mstsc.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\w32tm.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\werfault.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\runonce.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\wuauclt.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\typeperf.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\gpresult.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\gpupdate.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\wusa.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\upnpcont.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\mavinject.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\wecutil.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\msiexec.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\net.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\wudfhost.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\eventvwr.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\arp.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\ping.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\print.exe$/ nocase or
+$e1.target.process.command_line = /.*\\windows\\(system32|syswow64|sysnative)\\msiexec.exe$/ nocase or
+$e1.target.process.command_line = /.*\\program.files\\microsoft.silverlight\\sllauncher.exe$/ nocase or
+$e1.target.process.command_line = /.*\\program.files\\windows.photo.viewer\\imagingdevices.exe["]$/ nocase or
+$e1.target.process.command_line = /.*\\program.files\\windows.media.player\\wmplayer.exe["]$/ nocase
+
+// Allow these to run to reduce noise
+
+$e1.target.process.file.full_path != /.*icacls.exe.*/ nocase
+$e1.principal.process.file.full_path != /.*edge.*setup.exe/ nocase
+$e1.principal.process.file.full_path != /.*setup.exe.*/ nocase
+$e1.principal.process.file.full_path != /.*runas.*/ nocase
+$e1.principal.process.command_line != /.*runas.exe.*/ nocase
+$e1.principal.process.file.full_path != /.*javaw.exe/ nocase
+
+$e1.principal.hostname = $hostname
+
+  match:
+    // Look for activity within a 1 minute
+   $hostname over 1m
+
+  condition:
+    $e1
+}
+
