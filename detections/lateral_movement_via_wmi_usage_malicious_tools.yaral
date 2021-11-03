@@ -1,0 +1,29 @@
+rule lateral_movement_via_wmi_usage_malicious_tools {
+  meta:
+    author = "Dan Lussier"
+    description = "This detection is based on malicious tools connecting TO a remote machine to execute a payload via WMI. This was tested with CIMPlant."
+    version = "1.0"
+    severity = "Medium"
+    mitre_TA = "TA0002"
+    mitre_T1 = "T1047"
+    mitre_url = "https://attack.mitre.org/techniques/T1047/"
+    reference_docs = "https://github.com/FortyNorthSecurity/CIMplant"
+
+  events:
+    $e0.metadata.event_type = "PROCESS_LAUNCH"
+        $e0.principal.process.command_line = /.*svchost.exe\s\-k\sdcomlaunch/ nocase
+        $e0.target.process.command_line = /.*wmiprvse.exe\s\-secured\s\-embedding/ nocase
+    $e0.principal.hostname = $hostname
+    
+    $e1.metadata.event_type = "PROCESS_LAUNCH"
+        $e1.principal.process.command_line = /.*wmiprvse.exe\s\-secured\s\-embedding/ nocase
+        $e1.target.process.file.full_path = /.*.(exe|bat|ps1|dll)/ nocase
+    $e1.principal.hostname = $hostname
+
+match:
+    $hostname over 1m
+
+  condition:
+    $e0 and $e1
+}
+
