@@ -1,0 +1,26 @@
+rule suspicious_scheduled_tasks {
+  meta:
+    author = "Dan Lussier"
+    description = "Look for suspicious scheduled tasks being created"
+    version = "1.0"
+    severity = "High"
+    mitre_TA = "TA0003"
+    mitre_T1 = "T1053.005"
+    mitre_url = "https://attack.mitre.org/techniques/T1053/005/"
+
+  events:
+
+    $e1.metadata.product_event_type = "ScheduledTaskRegistered" or
+    $e1.metadata.product_event_type = "ScheduledTaskModified" or
+    $e1.metadata.product_event_type = "ScheduledTaskDeleted"
+        $e1.target.process.command_line = /.*powershell.*bypass.*/ nocase or
+        $e1.target.process.command_line = /.*cmd.*\/c.*/ nocase or
+        $e1.target.process.command_line = /.*wscript.*/ nocase
+    $e1.principal.hostname = $hostname
+
+  match:
+   $hostname over 1m
+
+  condition:
+   $e1 
+}
