@@ -1,0 +1,22 @@
+rule InstallerFileTakeOver_CVE_2021_41379 {
+  meta:
+    author = "Dan Lussier"
+    description = "Detect usage of the default packaged exploit for CVE-2021-41379"
+    version = "1.0"
+    severity = "Medium"
+    mitre_TA = "TA0004"
+    mitre_T1 = "T1068"
+    mitre_url = "https://attack.mitre.org/tactics/TA0004/"
+    reference_docs = "https://github.com/klinix5/InstallerFileTakeOver"
+
+  events:
+    $e0.metadata.product_event_type = "NEW_DOCUMENT" // This could be different in your EDR/sysmon logs, change as needed.
+      $e0.target.file.full_path = /.*microsoft\splz.*/ nocase
+    $e0.principal.hostname = $hostname
+
+match:
+    $hostname over 1m
+
+  condition:
+    $e0
+}
