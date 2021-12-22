@@ -1,0 +1,28 @@
+rule windows_java_spawning_unfamiliar_commands {
+  meta:
+    author = "Dan Lussier"
+    description = "Look for Java on Windows spawning unfamiliar commands/LOLBIN's"
+    version = "1.0"
+    severity = "High"
+    mitre_TA = "TA0011"
+    mitre_T1 = "T1105"
+    mitre_url = "https://attack.mitre.org/techniques/T1105/"
+    references = "https://github.com/fireeye/CVE-2021-44228/blob/master/rules/execution/45c3e506-71bb-49eb-9157-efb81904d880.ioc"
+
+  events:
+
+    $e1.metadata.event_type = "PROCESS_LAUNCH"
+    // Some EDR vendors put the field for OS Name (Windows/Linux) - if this exists place that metadata in here to differentiate the operating systems
+        $e1.principal.process.file.full_path = /.*java.exe.*/ nocase
+        $e1.target.process.command_line = /.*(start|cmd.exe|appinstaller.exe|bitsadmin.exe|certoc.exe|certreq.exe|cmdl32.exe|control.exe|cscript.exe|desktopimgdownldr.exe|diantz.exe|eventvwr.exe|expand.exe|extrac32.exe|findstr.exe|finger.exe|ftp.exe|gfxdownloadwrapper.exe|hh.exe|imewdbld.exe|ieexec.exe|installutill.exe|makecab.exe|mpcmdrun.exe|mshta.exe|nc.exe|msiexec.exe|onedrivestandaloneupdater.exe|printbrm.exe|regasm.exe|regsvr32.exe|replace.exe|rundll32.exe|sc.exe|schtasks.exe|wmic.exe|wscript.exe|xwizard.exe|excel.exe|pwerpnt.exe|squirrel.exe|winword.exe|wsl.exe|powershell.exe|nslookup.exe|certutil.exe).*/ nocase
+            // Put ignore list below
+            
+    $e1.principal.hostname = $hostname
+
+  match:
+   $hostname over 1m
+
+  condition:
+   $e1 
+}
+

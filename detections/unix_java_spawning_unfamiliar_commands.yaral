@@ -1,0 +1,28 @@
+rule unix_java_spawning_unfamiliar_commands {
+  meta:
+    author = "Dan Lussier"
+    description = "Look for Java on UNIX based OS's spawning unfamiliar commands/LOLBIN's"
+    version = "1.0"
+    severity = "High"
+    mitre_TA = "TA0011"
+    mitre_T1 = "T1105"
+    mitre_url = "https://attack.mitre.org/techniques/T1105/"
+    references = "https://github.com/fireeye/CVE-2021-44228/blob/master/rules/execution/5e3cd7b3-4844-4fe5-8d08-2f71cad53c5c.ioc"
+
+  events:
+
+    $e1.metadata.event_type = "PROCESS_LAUNCH"
+    // Some EDR vendors put the field for OS Name (Windows/Linux) - if this exists place that metadata in here to differentiate the operating systems
+        $e1.principal.process.file.full_path = /.*java.*/ nocase
+        $e1.target.process.command_line = /.*(start|bash|dash|ksh|sh|cpan|curl|easy_install|finger|ftp|gdp|gimp|irb|jjs|jrunscript|lua|lwp-download|nc|nmap|node|openssl|php|pip|python|ruby|rview|rvim|scp|sftp|smbclient|socal|ssh|tar|tftp|view|vim|vimdiff|wget|whois|yum|telnet|echo|nslookup).*/ nocase
+            // Put ignore list below
+            
+    $e1.principal.hostname = $hostname
+
+  match:
+   $hostname over 1m
+
+  condition:
+   $e1 
+}
+
