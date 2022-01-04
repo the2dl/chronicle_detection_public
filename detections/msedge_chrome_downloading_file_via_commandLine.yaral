@@ -1,0 +1,23 @@
+rule msedge_chrome_downloading_file_via_commandLine {
+  meta:
+    author = "Dan Lussier"
+    description = "Look for someone downloading files via commandline using Chrome/MSEdge headless"
+    version = "1.0"
+    severity = "High"
+    mitre_TA = "TA0011"
+    mitre_T1 = "T1105"
+    mitre_url = "https://attack.mitre.org/techniques/T1105/"
+    references = "https://twitter.com/mrd0x/status/1478234484881436672"
+
+  events:
+
+    $e1.metadata.event_type = "PROCESS_LAUNCH"
+        $e1.target.process.command_line = /.*(chrome.exe|msedge.exe).*\-\-headless.*\-\-dump-dom.*http.*/ nocase
+    $e1.principal.hostname = $hostname
+
+  match:
+   $hostname over 1m
+
+  condition:
+   $e1 
+}
