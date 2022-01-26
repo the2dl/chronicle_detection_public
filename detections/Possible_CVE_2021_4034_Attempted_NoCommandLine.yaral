@@ -1,27 +1,25 @@
-rule Possible_CVE_2021_4034_Attempted {
+rule Possible_CVE_2021_4034_Attempted_NoCommandLine {
   meta:
     author = "Dan Lussier"
-    description = "Identify pkexec executing with a shell popping within 1 minute"
+    description = "Identify pkexec executing without command line parameters (from CrowdStrike)"
     version = "1.0"
     severity = "Critical"
     mitre_TA = "TA0004"
     mitre_T1 = "T1068"
     mitre_url = "https://attack.mitre.org/tactics/TA0004/"
+    shout_out = "https://www.reddit.com/r/crowdstrike/comments/sdfeig/20220126_cool_query_friday_hunting_pwnkit_local/"
     references = "https://blog.qualys.com/vulnerabilities-threat-research/2022/01/25/pwnkit-local-privilege-escalation-vulnerability-discovered-in-polkits-pkexec-cve-2021-4034"
 
   events:
 
     $e1.metadata.event_type = "PROCESS_LAUNCH"
     	$e1.target.process.file.full_path = /.*\/usr\/bin\/pkexec/
+	$e1.target.process.command_line = ""
     $e1.principal.hostname = $hostname
-
-    $e2.metadata.event_type = "PROCESS_LAUNCH"
-    	$e2.target.process.file.full_path = /.*\/bin\/(sh|bash|dash|zsh|rbash|ksh)/
-    $e2.principal.hostname = $hostname
 
   match:
    $hostname over 1m
 
   condition:
-   $e1 and $e2
+   $e1
 }
