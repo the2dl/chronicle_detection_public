@@ -13,6 +13,8 @@ rule Possible_CVE_2021_4034_Attempted {
 
     $e1.metadata.event_type = "PROCESS_LAUNCH"
     	$e1.target.process.file.full_path = /.*\/usr\/bin\/pkexec/
+		// Mute legitimate Polkit activity
+		$e1.target.process.command_line != /.*\/usr\/lib\/polkit.*\/polkit\-agent\-helper\-.*/
     $e1.principal.hostname = $hostname
 
     $e2.metadata.event_type = "PROCESS_LAUNCH"
