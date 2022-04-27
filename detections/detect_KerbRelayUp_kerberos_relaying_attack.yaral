@@ -1,0 +1,42 @@
+rule detect_KerbRelayUp_kerberos_relaying_attack {
+  meta:
+    author = "Dan Lussier"
+    description = "Detect KerbRelayUp being executed via EDR Telemtry."
+    version = "1.0"
+    severity = "High"
+    mitre_TA = "TA0004"
+    mitre_T1 = "T1548.002"
+    mitre_url = "https://attack.mitre.org/techniques/T1548/002/"
+    references = "https://github.com/Dec0ne/KrbRelayUp"
+    extra = "If LDAP signing is enforced, KrbyRelayup will not work. If you block the ability for local users to add machine accounts, it will also block the functionality."
+
+  events:
+    
+    // Network connection to localhost on a high port
+    $e1.metadata.event_type = "NETWORK_CONNECTION"
+        $e1.principal.ip = "127.0.0.1"
+        $e1.principal.port > 50000
+        $e1.target.port > 50000
+    $e1.principal.hostname = $hostname
+
+    // Administrator impersionation of S-1-5-21-*-500 with a MACHINE/NETWORK context
+    $e2.metadata.event_type = "USER_LOGIN"
+    $e2.extensions.auth.type = "MACHINE"
+    $e2.extensions.auth.mechanism = "NETWORK"
+    $e2.security_result.action = "ALLOW"
+        $e2.target.user.windows_sid = /.*s\-1\-5\-21\-.*500/ nocase
+    $e2.principal.hostname = $hostname
+
+    // Network connection from localhost > 0.0.0 via UDP
+    $e3.metadata.event_type = "NETWORK_CONNECTION"
+    $e3.network.ip_protocol = "UDP"
+        $e3.principal.ip = "127.0.0.1"
+        $e3.target.ip = "0.0.0.0"
+    $e3.principal.hostname = $hostname
+    
+  match:
+   $hostname over 1m
+
+  condition:
+   $e1 and $e2 and $e3
+}
