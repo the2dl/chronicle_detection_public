@@ -1,7 +1,7 @@
-rule detect_KerbRelayUp_kerberos_relaying_attack {
+rule detect_KrbRelayUp_kerberos_relaying_attack {
   meta:
     author = "Dan Lussier"
-    description = "Detect KerbRelayUp being executed via EDR Telemtry."
+    description = "Detect KrbRelayUp being executed via EDR Telemtry."
     version = "1.0"
     severity = "High"
     mitre_TA = "TA0004"
