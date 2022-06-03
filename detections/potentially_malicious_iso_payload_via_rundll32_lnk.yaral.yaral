@@ -14,7 +14,7 @@ rule potentially_malicious_iso_payload_via_rundll32_lnk {
         $e1.principal.platform = "WINDOWS"
           // Look for rundll launching
         $e1.target.process.file.full_path = /.*\\windows\\system32\\rundll32\.exe/ nocase
-          // Ignore anything that is coming from C as the mount point fro a malicious ISO will be a different drive letter
+          // Ignore anything that is coming from C as the mount point for a malicious ISO will be a different drive letter
         $e1.target.resource.attribute.labels.value != /c\:\\.*/ nocase
           // Match this back to the "LinkName" attribute from your EDR vendor, this may change depending on what you use
         $e1.target.resource.attribute.labels.key = "LinkName"
