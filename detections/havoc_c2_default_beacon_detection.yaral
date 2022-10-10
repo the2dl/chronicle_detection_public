@@ -11,7 +11,8 @@ rule havoc_c2_default_beacon_detection {
   events:
     $e1.metadata.event_type = "NETWORK_HTTP"
     $e1.target.hostname = $targetDomain
-    $e1.network.received_bytes = 243 // all checkin's are 243 bytes.
+    $e1.network.received_bytes = 243 or // all checkin's are 243 bytes.
+    $e1.network.received_bytes = 195 // some are now also 195 in the newer version
     $e1.network.http.response_code = 200
 
     // Match Condition
@@ -22,7 +23,8 @@ rule havoc_c2_default_beacon_detection {
     
   outcome: 
         $risk_score = max(
-        if ($e1.network.received_bytes = 243, 80) //adjust your score accordingly
+        if ($e1.network.received_bytes = 243, 80) +
+        if ($e1.network.received_bytes = 195, 80) //adjust your score accordingly
         )
         $targetDomain_distinct_count = count_distinct($targetDomain)
         $targetDomain_count = count($targetDomain)
@@ -30,5 +32,5 @@ rule havoc_c2_default_beacon_detection {
         $target_Domain = array($targetDomain)
 
   condition:
-       #e1 > 20 and $targetDomain_count > 10
+       #e1 > 20
 }
