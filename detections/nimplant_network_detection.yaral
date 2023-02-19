@@ -1,0 +1,32 @@
+ rule nimplant_network_detection {
+  meta:
+    author = "Dan Lussier"
+    description = "Detect C2 activity with nimplant"
+    version = "1.0"
+    severity = "High"
+    mitre_TA = "TA0011"
+    mitre_T1 = "T1071.001"
+    mitre_url = "https://attack.mitre.org/techniques/T1071/001/"
+
+  events:
+    $e1.metadata.event_type = "NETWORK_HTTP"
+    $e1.target.hostname = $targetDomain
+    $e1.network.received_bytes = 276 // Beacon activity is exactly 276 bytes
+    $e1.network.http.response_code = 200
+
+    // Match Condition
+    $e1.principal.ip = $srcIP
+       
+  match:
+       $targetDomain, $srcIP over 10m
+    
+  outcome: 
+
+        $targetDomain_distinct_count = count_distinct($targetDomain)
+        $targetDomain_count = count($targetDomain)
+        $targetDomain_distinct = array_distinct($targetDomain)
+        $target_Domain = array($targetDomain)
+
+  condition:
+       #e1 > 10
+}
