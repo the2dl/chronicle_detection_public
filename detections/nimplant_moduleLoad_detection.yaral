@@ -1,0 +1,23 @@
+rule nimplant_moduleLoad_detection {
+  meta:
+    author = "Dan Lussier"
+    description = "Detect nimplant execution"
+    version = "1.0"
+    severity = "High"
+    mitre_TA = "TA0011"
+    mitre_T1 = "na"
+    mitre_url = "https://attack.mitre.org/tactics/TA0011/"
+    references = "https://github.com/chvancooten/NimPlant"
+
+  events:
+
+    $e1.metadata.event_type = "PROCESS_MODULE_LOAD"
+    $e1.principal.process.file.full_path = $principalPath
+    $e1.target.process.file.full_path = "C:\\Windows\\System32\\OnDemandConnRouteHelper.dll" nocase // Can often see OnDemandConnRouteHelper exec many times by different processes. But rarely volume from a single process.
+
+  match:
+   $principalPath over 3m
+
+  condition:
+   #e1 > 8
+}
