@@ -2,7 +2,7 @@ rule nimplant_moduleLoad_detection {
   meta:
     author = "Dan Lussier"
     description = "Detect nimplant execution"
-    version = "1.0"
+    version = "1.1"
     severity = "High"
     mitre_TA = "TA0011"
     mitre_T1 = "na"
@@ -13,7 +13,9 @@ rule nimplant_moduleLoad_detection {
 
     $e1.metadata.event_type = "PROCESS_MODULE_LOAD"
     $e1.principal.process.file.full_path = $principalPath
-    $e1.target.process.file.full_path = "C:\\Windows\\System32\\OnDemandConnRouteHelper.dll" nocase // Can often see OnDemandConnRouteHelper exec many times by different processes. But rarely volume from a single process.
+    $e1.target.process.file.full_path = "C:\\Windows\\System32\\OnDemandConnRouteHelper.dll" nocase
+        // Tuning list, move to List Manager if the list grows > 5
+        $e1.principal.process.file.full_path != "C:\\Windows\\System32\\svchost.exe"
     $e1.principal.hostname = $hostname
 
   match:
