@@ -1,12 +1,13 @@
  rule nimplant_network_detection {
   meta:
     author = "Dan Lussier"
-    description = "Detect C2 activity with nimplant"
+    description = "Detect C2 activity from nimplant"
     version = "1.0"
     severity = "High"
     mitre_TA = "TA0011"
     mitre_T1 = "T1071.001"
     mitre_url = "https://attack.mitre.org/techniques/T1071/001/"
+    references = "https://github.com/chvancooten/NimPlant"
 
   events:
     $e1.metadata.event_type = "NETWORK_HTTP"
