@@ -11,7 +11,7 @@
   events:
     $e1.metadata.event_type = "NETWORK_HTTP"
     $e1.target.hostname = $targetDomain
-    $e1.network.received_bytes = 276 // Beacon activity is exactly 276 bytes
+    $e1.network.received_bytes = 276 // taskPath (check-in) URI path is always 276 bytes
     $e1.network.http.response_code = 200
 
     // Match Condition
