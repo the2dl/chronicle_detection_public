@@ -2,11 +2,11 @@ rule nimplant_moduleLoad_detection {
   meta:
     author = "Dan Lussier"
     description = "Detect nimplant execution"
-    version = "1.1"
+    version = "1.0"
     severity = "High"
     mitre_TA = "TA0011"
-    mitre_T1 = "na"
-    mitre_url = "https://attack.mitre.org/tactics/TA0011/"
+    mitre_T1 = "T1105"
+    mitre_url = "https://attack.mitre.org/techniques/T1105/"
     references = "https://github.com/chvancooten/NimPlant"
     notes = "This works on the NimPlant.exe only. The self-deleting version does not replicate this behavior."
 
