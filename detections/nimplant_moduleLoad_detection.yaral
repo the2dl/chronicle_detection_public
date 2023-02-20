@@ -14,9 +14,10 @@ rule nimplant_moduleLoad_detection {
     $e1.metadata.event_type = "PROCESS_MODULE_LOAD"
     $e1.principal.process.file.full_path = $principalPath
     $e1.target.process.file.full_path = "C:\\Windows\\System32\\OnDemandConnRouteHelper.dll" nocase // Can often see OnDemandConnRouteHelper exec many times by different processes. But rarely volume from a single process.
+    $e1.principal.hostname = $hostname
 
   match:
-   $principalPath over 3m
+   $hostname, $principalPath over 3m
 
   condition:
    #e1 > 8
