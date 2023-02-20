@@ -8,6 +8,7 @@ rule nimplant_moduleLoad_detection {
     mitre_T1 = "na"
     mitre_url = "https://attack.mitre.org/tactics/TA0011/"
     references = "https://github.com/chvancooten/NimPlant"
+    notes = "This works on the NimPlant.exe only. The self-deleting version does not replicate this behavior."
 
   events:
 
