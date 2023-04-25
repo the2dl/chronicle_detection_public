@@ -6,34 +6,35 @@ rule TESTING_low_prevalence_hash_on_process_launch_low_prevalence_domain_accesse
     severity = "LOW"
 
   events:
-  		// HASH | PROCESS LOGIC
+  	// HASH | PROCESS LOGIC
         $e.metadata.event_type = "PROCESS_LAUNCH"
         $e.principal.ip = $ip
 
-        //join event ($d) to entity graph ($e)
+    // Join event ($d) to entity graph ($e)
         $d.graph.entity.file.sha256 = $e.target.file.sha256
         $d.graph.metadata.entity_type = "FILE"
         $d.graph.entity.file.prevalence.rolling_max <= 2
 
-        // DOMAIN | HTTP ACCESS LOGIC
+    // DOMAIN | HTTP ACCESS LOGIC
         $e1.metadata.event_type = "NETWORK_HTTP"
         $e1.principal.ip = $ip
-        // filter out URLs with RFC 1918 IP addresses, i.e., internal assets
+    
+    // Filter out URLs with RFC 1918 IP addresses, i.e., internal assets
         not re.regex($e1.target.hostname, `(127(?:\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$)|(10(?:\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$)|(192\.168(?:\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){2}$)|(172\.(?:1[6-9]|2\d|3[0-1])(?:\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){2})`)
-        // only match valid FQDN, filter out background non-routable noise
+    
+    // Only match valid FQDN, filter out background non-routable noise
         re.regex($e1.target.hostname, `(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]`)
-        $domainName = $e1.target.hostname
 
-        //join event ($d1) to entity graph ($e1)
+    // Join event ($d1) to entity graph ($e1)
         $d1.graph.entity.domain.name = $e1.target.hostname
         $d1.graph.metadata.entity_type = "DOMAIN_NAME"
-        // tune prevalence as fits your results
+    // Tune prevalence as fits your results
         $d1.graph.entity.domain.prevalence.rolling_max < 2
 
   match:
         $ip over 10m
 
-  /* Commented out for now
+  /* Disabled for now
   outcome:
     $risk_score = max(
         // increment risk score based upon rolling_max prevalence
